@@ -6,6 +6,6 @@
         public int NumberOfPlaces { get; set; }
         public TimeSpan OpeningTime { get; set; }
         public TimeSpan ClosingTime { get; set; }
-        public int TicketPrice { get; set; }
+        public int PricePerHour { get; set; }
     }
 }
