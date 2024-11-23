@@ -1,4 +1,6 @@
-﻿namespace ParkingSystem.Entities
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace ParkingSystem.Entities
 {
     public class Employee
     {
@@ -8,6 +10,6 @@
         public DateTime BirthDate { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public Parking Parking { get; set; }
+        public int ParkingId { get; internal set; }
     }
 }
