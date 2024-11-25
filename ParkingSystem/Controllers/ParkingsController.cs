@@ -72,6 +72,17 @@ namespace ParkingSystem.Controllers
             if (dbParking == null)
                 return NotFound("Parking not found.");
 
+            var employeesWithParking = await _dataContext.Employees
+                .Where(e => e.ParkingId == id)
+                .ToListAsync();
+
+            
+
+            foreach (var employee in employeesWithParking)
+            {
+                employee.ParkingId = null;
+            }
+
             _dataContext.Parkings.Remove(dbParking);
             await _dataContext.SaveChangesAsync();
 
