@@ -76,11 +76,19 @@ namespace ParkingSystem.Controllers
                 .Where(e => e.ParkingId == id)
                 .ToListAsync();
 
-            
-
             foreach (var employee in employeesWithParking)
             {
                 employee.ParkingId = null;
+            }
+
+
+            var parkingEntriesWithParking = await _dataContext.ParkingEntries
+                .Where(e => e.ParkingId != id)
+                .ToListAsync();
+
+            foreach (var parkingEntry in parkingEntriesWithParking)
+            {
+                parkingEntry.ParkingId = null;
             }
 
             _dataContext.Parkings.Remove(dbParking);
