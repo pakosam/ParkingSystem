@@ -23,13 +23,10 @@ namespace ParkingSystem.Controllers
             var parking = await _dataContext.Parkings.FindAsync(ParkingId);
 
             if (parking == null)
-            {
                 return NotFound($"Parking with ID {ParkingId} not found.");
-            }
-
-            parkingEntry.ParkingId = ParkingId;
 
             _dataContext.ParkingEntries.Add(parkingEntry);
+            _dataContext.ParkingPayments.Add(parkingEntry.Payment);
             await _dataContext.SaveChangesAsync();
 
             return Ok(await _dataContext.ParkingEntries.ToListAsync());
@@ -54,6 +51,7 @@ namespace ParkingSystem.Controllers
             dbParkingEntry.TicketTakeover = updatedParkingEntry.TicketTakeover;
             dbParkingEntry.TicketExpiration = updatedParkingEntry.TicketExpiration;
             dbParkingEntry.ParkingId = parkingId;
+            dbParkingEntry.Payment = updatedParkingEntry.Payment;
 
             await _dataContext.SaveChangesAsync();
             return Ok(await _dataContext.ParkingEntries.ToListAsync());
