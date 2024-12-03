@@ -18,42 +18,23 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost("{ParkingId}/entries")]
-        public async Task<ActionResult<List<ParkingEntry>>> AddParkingEntry([FromRoute] int ParkingId, [FromBody] ParkingEntry parkingEntry)
+        public async Task<ActionResult<List<ParkingEntry>>> AddParkingEntry([FromRoute] int ParkingId, [FromBody] CreateParkingEntryDto createParkingEntryDto)
         {
             var parking = await _dataContext.Parkings.FindAsync(ParkingId);
 
             if (parking == null)
                 return NotFound($"Parking with ID {ParkingId} not found.");
 
-            _dataContext.ParkingEntries.Add(parkingEntry);
-            _dataContext.ParkingPayments.Add(parkingEntry.Payment);
-            await _dataContext.SaveChangesAsync();
-
-            return Ok(await _dataContext.ParkingEntries.ToListAsync());
-        }
-
-        [HttpPut("{parkingId}/entries")]
-        public async Task<ActionResult<List<ParkingEntry>>> UpdateParkingEntry([FromRoute] int parkingId, [FromBody] ParkingEntry updatedParkingEntry)
-        {
-            var parking = await _dataContext.Parkings.FindAsync(parkingId);
-
-            if (parking == null)
+            var parkingEntry = new ParkingEntry
             {
-                return NotFound($"Parking with ID {parkingId} not found.");
-            }
+                RegistrationPlate = createParkingEntryDto.RegistrationPlate,
+                TicketTakeover = createParkingEntryDto.TicketTakeover,
+                ParkingId = ParkingId,
+            }; 
 
-            var dbParkingEntry = await _dataContext.ParkingEntries.FindAsync(updatedParkingEntry.Id);
-
-            if (dbParkingEntry == null)
-                return NotFound("Parking entry not found");
-
-            dbParkingEntry.RegistrationPlate = updatedParkingEntry.RegistrationPlate;
-            dbParkingEntry.TicketTakeover = updatedParkingEntry.TicketTakeover;
-            dbParkingEntry.TicketExpiration = updatedParkingEntry.TicketExpiration;
-            dbParkingEntry.ParkingId = parkingId;
-            dbParkingEntry.Payment = updatedParkingEntry.Payment;
-
+            _dataContext.ParkingEntries.Add(parkingEntry);
             await _dataContext.SaveChangesAsync();
+
             return Ok(await _dataContext.ParkingEntries.ToListAsync());
         }
 
@@ -65,7 +46,7 @@ namespace ParkingSystem.Controllers
             return Ok(parkingEntries);
         }
 
-        [HttpGet("{id}/entries")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<ParkingEntry>> GetParkingEntry(int id)
         {
             var parkingEntry = await _dataContext.ParkingEntries.FindAsync(id);
@@ -90,6 +71,59 @@ namespace ParkingSystem.Controllers
             await _dataContext.SaveChangesAsync();
             
             return Ok(await _dataContext.ParkingEntries.ToListAsync());
+        }
+
+        [HttpPut("{parkingEntryId}/leaves")]
+        public async Task<ActionResult<List<ParkingEntry>>> AddParkingLeave([FromRoute] int parkingEntryId, [FromBody] CreateParkingLeaveDto createParkingLeaveDto)
+        {
+            // 1. 
+
+            var entry = await _dataContext.ParkingEntries.FindAsync(parkingEntryId);
+
+            if (entry == null)
+                return NotFound($"Entry with parkingEntryId {parkingEntryId} not found.");
+
+
+            // 2.
+
+            var parking = await _dataContext.Parkings.FindAsync(entry.ParkingId);
+
+            if (parking == null)
+                return NotFound($"Parking with parkingId {entry.ParkingId} not found.");
+
+            var price = parking.PricePerHour;
+            var ticketTakeover = entry.TicketTakeover;
+            var ticketExpiration = createParkingLeaveDto.TicketExpiration;
+
+            if (ticketTakeover == null || ticketExpiration == null)
+            {
+                return BadRequest("TicketTakeover and TicketExpiration must have valid values.");
+            }
+
+            if (ticketExpiration <= ticketTakeover)
+            {
+                return BadRequest("TicketExpiration must be later than TicketTakeover.");
+            }
+
+            var duration = ticketExpiration.Value - ticketTakeover.Value;
+
+            var totalHours = Math.Ceiling(duration.TotalHours);
+
+            var totalPrice = (int)(totalHours * price);
+
+
+            entry.TicketExpiration = ticketExpiration;
+
+            var payment = new ParkingPayments
+            {
+                Amount = totalPrice,
+                ParkingEntryId = parkingEntryId
+            };
+
+            _dataContext.ParkingPayments.Add(payment);
+            await _dataContext.SaveChangesAsync();
+
+            return Ok(payment);
         }
     }
 }

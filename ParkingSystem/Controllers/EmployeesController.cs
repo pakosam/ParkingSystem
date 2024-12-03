@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParkingSystem.Data;
+using ParkingSystem.DTOs;
 using ParkingSystem.Entities;
 
 namespace ParkingSystem.Controllers
@@ -18,7 +19,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Employee>>> AddEmployee(Employee employee, int parkingId)
+        public async Task<ActionResult<List<Employee>>> AddEmployee(CreateEmployeeDto createEmployeeDto, int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
 
@@ -27,7 +28,15 @@ namespace ParkingSystem.Controllers
                 return NotFound($"Parking with ID {parkingId} not found.");
             }
 
-            employee.ParkingId = parkingId;
+            var employee = new Employee
+            {
+                Name = createEmployeeDto.Name,
+                Surname = createEmployeeDto.Surname,
+                BirthDate = createEmployeeDto.BirthDate,
+                Username = createEmployeeDto.Username,
+                Password = createEmployeeDto.Password,
+                ParkingId = parkingId
+            };
 
             _dataContext.Employees.Add(employee);
             await _dataContext.SaveChangesAsync();

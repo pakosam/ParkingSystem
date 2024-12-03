@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParkingSystem.Data;
+using ParkingSystem.DTOs;
 using ParkingSystem.Entities;
 
 namespace ParkingSystem.Controllers
@@ -18,8 +19,17 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Parking>>> AddParking(Parking parking)
+        public async Task<ActionResult<List<Parking>>> AddParking(CreateParkingDto createParkingDto)
         {
+            var parking = new Parking
+            {
+                Name = createParkingDto.Name,
+                NumberOfPlaces = createParkingDto.NumberOfPlaces,
+                OpeningTime = createParkingDto.OpeningTime,
+                ClosingTime = createParkingDto.ClosingTime,
+                PricePerHour = createParkingDto.PricePerHour
+            };
+
             _dataContext.Parkings.Add(parking);
             await _dataContext.SaveChangesAsync();
 
@@ -79,16 +89,6 @@ namespace ParkingSystem.Controllers
             foreach (var employee in employeesWithParking)
             {
                 employee.ParkingId = null;
-            }
-
-
-            var parkingEntriesWithParking = await _dataContext.ParkingEntries
-                .Where(e => e.ParkingId != id)
-                .ToListAsync();
-
-            foreach (var parkingEntry in parkingEntriesWithParking)
-            {
-                parkingEntry.ParkingId = null;
             }
 
             _dataContext.Parkings.Remove(dbParking);
