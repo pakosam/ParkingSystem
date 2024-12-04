@@ -107,7 +107,7 @@ namespace ParkingSystem.Controllers
 
             var duration = ticketExpiration.Value - ticketTakeover.Value;
 
-            var totalHours = Math.Ceiling(duration.TotalHours);
+            var totalHours = (decimal)Math.Ceiling(duration.TotalHours);
 
             var totalPrice = (int)(totalHours * price);
 

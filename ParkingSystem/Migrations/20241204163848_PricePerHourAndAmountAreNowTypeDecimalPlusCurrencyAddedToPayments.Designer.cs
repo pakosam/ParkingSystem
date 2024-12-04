@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ParkingSystem.Data;
 
@@ -11,9 +12,11 @@ using ParkingSystem.Data;
 namespace ParkingSystem.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241204163848_PricePerHourAndAmountAreNowTypeDecimalPlusCurrencyAddedToPayments")]
+    partial class PricePerHourAndAmountAreNowTypeDecimalPlusCurrencyAddedToPayments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,7 +57,7 @@ namespace ParkingSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("ParkingSystem.Entities.Parking", b =>
@@ -83,7 +86,7 @@ namespace ParkingSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Parkings", (string)null);
+                    b.ToTable("Parkings");
                 });
 
             modelBuilder.Entity("ParkingSystem.Entities.ParkingEntry", b =>
@@ -109,7 +112,7 @@ namespace ParkingSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ParkingEntries", (string)null);
+                    b.ToTable("ParkingEntries");
                 });
 
             modelBuilder.Entity("ParkingSystem.Entities.ParkingPayments", b =>
@@ -134,7 +137,7 @@ namespace ParkingSystem.Migrations
                     b.HasIndex("ParkingEntryId")
                         .IsUnique();
 
-                    b.ToTable("ParkingPayments", (string)null);
+                    b.ToTable("ParkingPayments");
                 });
 
             modelBuilder.Entity("ParkingSystem.Entities.ParkingPayments", b =>
