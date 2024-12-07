@@ -27,6 +27,7 @@ namespace ParkingSystem.Controllers
             {
                 return NotFound($"Parking with ID {parkingId} not found.");
             }
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(createEmployeeDto.Password);
 
             var employee = new Employee
             {
@@ -34,7 +35,7 @@ namespace ParkingSystem.Controllers
                 Surname = createEmployeeDto.Surname,
                 BirthDate = createEmployeeDto.BirthDate,
                 Username = createEmployeeDto.Username,
-                Password = createEmployeeDto.Password,
+                Password = hashedPassword,
                 ParkingId = parkingId
             };
 

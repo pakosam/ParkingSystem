@@ -76,15 +76,11 @@ namespace ParkingSystem.Controllers
         [HttpPut("{parkingEntryId}/leaves")]
         public async Task<ActionResult<List<ParkingEntry>>> AddParkingLeave([FromRoute] int parkingEntryId, [FromBody] CreateParkingLeaveDto createParkingLeaveDto)
         {
-            // 1. 
 
             var entry = await _dataContext.ParkingEntries.FindAsync(parkingEntryId);
 
             if (entry == null)
                 return NotFound($"Entry with parkingEntryId {parkingEntryId} not found.");
-
-
-            // 2.
 
             var parking = await _dataContext.Parkings.FindAsync(entry.ParkingId);
 

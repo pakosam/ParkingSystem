@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
 
 namespace ParkingSystem.Entities
 {
@@ -9,6 +10,8 @@ namespace ParkingSystem.Entities
         public string Surname { get; set; }
         public DateTime BirthDate { get; set; }
         public string Username { get; set; }
+
+        [JsonIgnore]
         public string Password { get; set; }
         public int? ParkingId { get; internal set; }
     }
