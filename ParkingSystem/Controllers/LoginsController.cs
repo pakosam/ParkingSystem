@@ -23,6 +23,34 @@ namespace ParkingSystem.Controllers
             _dataContext = dataContext;
         }
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] CreateEmployeeDto registerDto)
+        {
+            var existingUser = await _dataContext.Employees
+                .AnyAsync(e => e.Username == registerDto.Username);
+
+            if (existingUser)
+            {
+                return BadRequest("Username already exists.");
+            }
+
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
+
+            var employee = new Employee
+            {
+                Username = registerDto.Username,
+                Password = hashedPassword,
+                Name = registerDto.Name,
+                Surname = registerDto.Surname,
+                BirthDate = registerDto.BirthDate
+            };
+
+            _dataContext.Employees.Add(employee);
+            await _dataContext.SaveChangesAsync();
+
+            return Ok("Registration successful.");
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
@@ -45,9 +73,8 @@ namespace ParkingSystem.Controllers
 
             var claims = new[]
             {
-            new Claim(ClaimTypes.Name, username),
-            //new Claim(ClaimTypes.Role, "Admin")
-        };
+                new Claim(ClaimTypes.Name, username),
+            };
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
