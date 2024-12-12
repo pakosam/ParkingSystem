@@ -13,11 +13,11 @@ namespace ParkingSystem.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LoginsController : ControllerBase
+    public class AuthorizationsController : ControllerBase
     {
         private readonly IConfiguration _configuration;
         private readonly DataContext _dataContext;
-        public LoginsController(IConfiguration configuration, DataContext dataContext)
+        public AuthorizationsController(IConfiguration configuration, DataContext dataContext)
         {
             _configuration = configuration;
             _dataContext = dataContext;

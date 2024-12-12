@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParkingSystem.Data;
@@ -19,6 +20,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<List<Employee>>> AddEmployee(CreateEmployeeDto createEmployeeDto, int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
@@ -46,6 +48,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPut]
+        [Authorize]
         public async Task<ActionResult<List<Employee>>> UpdateEmployee(Employee updatedEmployee, int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
@@ -72,6 +75,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<Employee>>> GetAllEmployees()
         {
             var employees = await _dataContext.Employees.ToListAsync();
@@ -80,6 +84,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<Employee>> GetEmployee(int id)
         {
             var employee = await _dataContext.Employees.FindAsync(id);
@@ -93,6 +98,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpDelete]
+        [Authorize]
         public async Task<ActionResult<List<Employee>>> DeleteEmployee(int id)
         {
             var dbEmployee = await _dataContext.Employees.FindAsync(id);

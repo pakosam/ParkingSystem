@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParkingSystem.Data;
@@ -19,6 +20,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<List<Parking>>> AddParking(CreateParkingDto createParkingDto)
         {
             var parking = new Parking
@@ -37,6 +39,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPut]
+        [Authorize]
         public async Task<ActionResult<List<Parking>>> UpdateParking(Parking updatedParking)
         {
             var dbParking = await _dataContext.Parkings.FindAsync(updatedParking.Id);
@@ -56,6 +59,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<Parking>>> GetAllParkings()
         {
             var parkings = await _dataContext.Parkings.ToListAsync();
@@ -64,6 +68,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<Parking>> GetParking(int id)
         {
             var parking = await _dataContext.Parkings.FindAsync(id);
@@ -75,6 +80,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpDelete]
+        [Authorize]
         public async Task<ActionResult<List<Parking>>> DeleteParking(int id)
         {
             var dbParking = await _dataContext.Parkings.FindAsync(id);
