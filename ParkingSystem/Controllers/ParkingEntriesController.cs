@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParkingSystem.Data;
@@ -18,6 +19,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost("{ParkingId}/entries")]
+        [Authorize]
         public async Task<ActionResult<List<ParkingEntry>>> AddParkingEntry([FromRoute] int ParkingId, [FromBody] CreateParkingEntryDto createParkingEntryDto)
         {
             var parking = await _dataContext.Parkings.FindAsync(ParkingId);
@@ -39,6 +41,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<ParkingEntry>>> GetAllParkingEntries()
         {
             var parkingEntries = await _dataContext.ParkingEntries.ToListAsync();
@@ -47,6 +50,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<ParkingEntry>> GetParkingEntry(int id)
         {
             var parkingEntry = await _dataContext.ParkingEntries.FindAsync(id);
@@ -60,6 +64,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpDelete]
+        [Authorize]
         public async Task<ActionResult<List<ParkingEntry>>> DeleteParkingEntry(int id)
         {
             var dbParkingEntry = await _dataContext.ParkingEntries.FindAsync(id);
@@ -74,6 +79,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPut("{parkingEntryId}/leaves")]
+        [Authorize]
         public async Task<ActionResult<List<ParkingEntry>>> AddParkingLeave([FromRoute] int parkingEntryId, [FromBody] CreateParkingLeaveDto createParkingLeaveDto)
         {
 
