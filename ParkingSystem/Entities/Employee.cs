@@ -8,10 +8,8 @@ namespace ParkingSystem.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public DateTime BirthDate { get; set; }
+        public DateOnly BirthDate { get; set; }
         public string Username { get; set; }
-
-        [JsonIgnore]
         public string Password { get; set; }
         public int? ParkingId { get; internal set; }
     }

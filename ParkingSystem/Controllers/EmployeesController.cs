@@ -20,8 +20,8 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<ActionResult<List<Employee>>> AddEmployee(CreateEmployeeDto createEmployeeDto, int parkingId)
+        //[Authorize]
+        public async Task<ActionResult<List<EmployeeDto>>> AddEmployee(CreateEmployeeDto createEmployeeDto, int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
 
@@ -44,12 +44,22 @@ namespace ParkingSystem.Controllers
             _dataContext.Employees.Add(employee);
             await _dataContext.SaveChangesAsync();
 
-            return Ok(await _dataContext.Employees.ToListAsync());
+            var employees = await _dataContext.Employees
+                .Select(e => new EmployeeDto
+                {
+                    Id = e.Id,
+                    FullName = e.Name + " " + e.Surname,
+                    BirthDate = e.BirthDate,
+                    ParkingId = e.ParkingId ?? 0
+                })
+                .ToListAsync();
+
+            return Ok(employees);
         }
 
         [HttpPut]
-        [Authorize]
-        public async Task<ActionResult<List<Employee>>> UpdateEmployee(Employee updatedEmployee, int parkingId)
+        //[Authorize]
+        public async Task<ActionResult<List<EmployeeDto>>> UpdateEmployee(Employee updatedEmployee, int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
 
@@ -62,44 +72,71 @@ namespace ParkingSystem.Controllers
 
             if (dbEmployee == null)
                 return NotFound("Employee not found.");
-            
+
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedEmployee.Password);
+
             dbEmployee.Name = updatedEmployee.Name;
             dbEmployee.Surname = updatedEmployee.Surname;
             dbEmployee.BirthDate = updatedEmployee.BirthDate;
             dbEmployee.Username = updatedEmployee.Username;
-            dbEmployee.Password = updatedEmployee.Password;
+            dbEmployee.Password = hashedPassword;
             dbEmployee.ParkingId = parkingId;
 
             await _dataContext.SaveChangesAsync();
-            return Ok(await _dataContext.Employees.ToListAsync());
+
+            var employees = await _dataContext.Employees
+                .Select(e => new EmployeeDto
+                {
+                    Id = e.Id,
+                    FullName = e.Name + " " + e.Surname,
+                    BirthDate = e.BirthDate,
+                    ParkingId = e.ParkingId ?? 0
+                })
+                .ToListAsync();
+
+            return Ok(employees);
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<ActionResult<List<Employee>>> GetAllEmployees()
+        //[Authorize]
+        public async Task<ActionResult<List<EmployeeDto>>> GetAllEmployees()
         {
-            var employees = await _dataContext.Employees.ToListAsync();
+            var employees = await _dataContext.Employees
+                .Select(e => new EmployeeDto
+                {
+                    Id = e.Id,
+                    FullName = e.Name + " " + e.Surname,
+                    BirthDate = e.BirthDate,
+                    ParkingId = e.ParkingId ?? 0
+                })
+                .ToListAsync();
 
             return Ok(employees);
         }
 
         [HttpGet("{id}")]
-        [Authorize]
-        public async Task<ActionResult<Employee>> GetEmployee(int id)
+        //[Authorize]
+        public async Task<ActionResult<EmployeeDto>> GetEmployee(int id)
         {
-            var employee = await _dataContext.Employees.FindAsync(id);
+            var employee = await _dataContext.Employees
+                .Select(e => new EmployeeDto
+                {
+                    Id = e.Id,
+                    FullName = e.Name + " " + e.Surname,
+                    BirthDate = e.BirthDate,
+                    ParkingId = e.ParkingId ?? 0
+                })
+                .FirstOrDefaultAsync();
 
             if (employee == null)
                 return NotFound("Employee not found.");
-
-            await _dataContext.SaveChangesAsync();
 
             return Ok(employee);
         }
 
         [HttpDelete]
-        [Authorize]
-        public async Task<ActionResult<List<Employee>>> DeleteEmployee(int id)
+        //[Authorize]
+        public async Task<ActionResult<List<EmployeeDto>>> DeleteEmployee(int id)
         {
             var dbEmployee = await _dataContext.Employees.FindAsync(id);
 
@@ -109,7 +146,17 @@ namespace ParkingSystem.Controllers
             _dataContext.Employees.Remove(dbEmployee);
             await _dataContext.SaveChangesAsync();
 
-            return Ok(await _dataContext.Employees.ToListAsync());
+            var employees = await _dataContext.Employees
+                .Select(e => new EmployeeDto
+                {
+                    Id = e.Id,
+                    FullName = e.Name + " " + e.Surname,
+                    BirthDate = e.BirthDate,
+                    ParkingId = e.ParkingId ?? 0
+                })
+                .ToListAsync();
+
+            return Ok(employees);
         }
     }
 }

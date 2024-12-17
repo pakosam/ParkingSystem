@@ -10,7 +10,6 @@ namespace ParkingSystem.DTOs
         public DateTime? TicketTakeover { get; set; }
         public DateTime? TicketExpiration { get; set; }
         public int? ParkingId { get; set; }
-        public ParkingPayments Payment { get; set; }
     }
 }
 

@@ -20,8 +20,8 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<ActionResult<List<Parking>>> AddParking(CreateParkingDto createParkingDto)
+        //[Authorize]
+        public async Task<ActionResult<List<ParkingDto>>> AddParking(CreateParkingDto createParkingDto)
         {
             var parking = new Parking
             {
@@ -35,12 +35,24 @@ namespace ParkingSystem.Controllers
             _dataContext.Parkings.Add(parking);
             await _dataContext.SaveChangesAsync();
 
-            return Ok(await _dataContext.Parkings.ToListAsync());
+            var parkings = await _dataContext.Parkings
+                .Select(p => new ParkingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NumberOfPlaces = p.NumberOfPlaces,
+                    OpeningTime = p.OpeningTime,
+                    ClosingTime = p.ClosingTime,
+                    PricePerHour = (int)p.PricePerHour
+                })
+                .ToListAsync();
+
+            return Ok(parkings);
         }
 
         [HttpPut]
-        [Authorize]
-        public async Task<ActionResult<List<Parking>>> UpdateParking(Parking updatedParking)
+        //[Authorize]
+        public async Task<ActionResult<List<ParkingDto>>> UpdateParking(Parking updatedParking)
         {
             var dbParking = await _dataContext.Parkings.FindAsync(updatedParking.Id);
 
@@ -55,33 +67,62 @@ namespace ParkingSystem.Controllers
 
             await _dataContext.SaveChangesAsync();
 
-            return Ok(await _dataContext.Parkings.ToListAsync());
+            var parkings = await _dataContext.Parkings
+                .Select(p => new ParkingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NumberOfPlaces = p.NumberOfPlaces,
+                    OpeningTime = p.OpeningTime,
+                    ClosingTime = p.ClosingTime,
+                    PricePerHour = (int)p.PricePerHour
+                })
+                .ToListAsync();
+
+            return Ok(parkings);
         }
 
         [HttpGet]
-        [Authorize]
-        public async Task<ActionResult<List<Parking>>> GetAllParkings()
+        //[Authorize]
+        public async Task<ActionResult<List<ParkingDto>>> GetAllParkings()
         {
-            var parkings = await _dataContext.Parkings.ToListAsync();
+            var parkings = await _dataContext.Parkings
+                .Select(p => new ParkingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NumberOfPlaces = p.NumberOfPlaces,
+                    OpeningTime = p.OpeningTime,
+                    ClosingTime = p.ClosingTime,
+                    PricePerHour = (int)p.PricePerHour
+                })
+                .ToListAsync();
 
             return Ok(parkings);
         }
 
         [HttpGet("{id}")]
-        [Authorize]
+        //[Authorize]
         public async Task<ActionResult<Parking>> GetParking(int id)
         {
-            var parking = await _dataContext.Parkings.FindAsync(id);
-
-            if (parking == null)
-                return NotFound("Parking not found.");
+            var parking = await _dataContext.Parkings
+                .Select(p => new ParkingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NumberOfPlaces = p.NumberOfPlaces,
+                    OpeningTime = p.OpeningTime,
+                    ClosingTime = p.ClosingTime,
+                    PricePerHour = (int)p.PricePerHour
+                })
+                .FirstOrDefaultAsync();
 
             return Ok(parking);
         }
 
         [HttpDelete]
-        [Authorize]
-        public async Task<ActionResult<List<Parking>>> DeleteParking(int id)
+        //[Authorize]
+        public async Task<ActionResult<List<ParkingDto>>> DeleteParking(int id)
         {
             var dbParking = await _dataContext.Parkings.FindAsync(id);
 
@@ -100,7 +141,19 @@ namespace ParkingSystem.Controllers
             _dataContext.Parkings.Remove(dbParking);
             await _dataContext.SaveChangesAsync();
 
-            return Ok(await _dataContext.Parkings.ToListAsync());
+            var parkings = await _dataContext.Parkings
+                .Select(p => new ParkingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NumberOfPlaces = p.NumberOfPlaces,
+                    OpeningTime = p.OpeningTime,
+                    ClosingTime = p.ClosingTime,
+                    PricePerHour = (int)p.PricePerHour
+                })
+                .ToListAsync();
+
+            return Ok(parkings);
         }
     }
 }
