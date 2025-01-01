@@ -103,9 +103,10 @@ namespace ParkingSystem.Controllers
 
         [HttpGet("{id}")]
         //[Authorize]
-        public async Task<ActionResult<Parking>> GetParking(int id)
+        public async Task<ActionResult<ParkingDto>> GetParking(int id)
         {
             var parking = await _dataContext.Parkings
+                .Where(p => p.Id == id)
                 .Select(p => new ParkingDto
                 {
                     Id = p.Id,

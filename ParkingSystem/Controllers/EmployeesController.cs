@@ -21,7 +21,7 @@ namespace ParkingSystem.Controllers
 
         [HttpPost]
         //[Authorize]
-        public async Task<ActionResult<List<EmployeeDto>>> AddEmployee(CreateEmployeeDto createEmployeeDto, int parkingId)
+        public async Task<ActionResult<List<EmployeeDto>>> AddEmployee([FromBody] CreateEmployeeDto createEmployeeDto, [FromQuery] int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
 
