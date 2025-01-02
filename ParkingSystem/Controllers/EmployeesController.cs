@@ -59,7 +59,7 @@ namespace ParkingSystem.Controllers
 
         [HttpPut]
         //[Authorize]
-        public async Task<ActionResult<List<EmployeeDto>>> UpdateEmployee(Employee updatedEmployee, int parkingId)
+        public async Task<ActionResult<List<EmployeeDto>>> UpdateEmployee([FromBody] Employee updatedEmployee, [FromQuery] int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
 
@@ -119,6 +119,7 @@ namespace ParkingSystem.Controllers
         public async Task<ActionResult<EmployeeDto>> GetEmployee(int id)
         {
             var employee = await _dataContext.Employees
+                .Where(p => p.Id == id)
                 .Select(e => new EmployeeDto
                 {
                     Id = e.Id,
