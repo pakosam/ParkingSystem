@@ -59,7 +59,7 @@ namespace ParkingSystem.Controllers
 
         [HttpPut]
         //[Authorize]
-        public async Task<ActionResult<List<EmployeeDto>>> UpdateEmployee([FromBody] Employee updatedEmployee, [FromQuery] int parkingId)
+        public async Task<ActionResult<List<EmployeeDto>>> UpdateEmployee(UpdateEmployeeDto updatedEmployee, int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
 
@@ -73,13 +73,10 @@ namespace ParkingSystem.Controllers
             if (dbEmployee == null)
                 return NotFound("Employee not found.");
 
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(updatedEmployee.Password);
 
             dbEmployee.Name = updatedEmployee.Name;
             dbEmployee.Surname = updatedEmployee.Surname;
             dbEmployee.BirthDate = updatedEmployee.BirthDate;
-            dbEmployee.Username = updatedEmployee.Username;
-            dbEmployee.Password = hashedPassword;
             dbEmployee.ParkingId = parkingId;
 
             await _dataContext.SaveChangesAsync();
@@ -120,10 +117,11 @@ namespace ParkingSystem.Controllers
         {
             var employee = await _dataContext.Employees
                 .Where(p => p.Id == id)
-                .Select(e => new EmployeeDto
+                .Select(e => new UpdateEmployeeDto
                 {
                     Id = e.Id,
-                    FullName = e.Name + " " + e.Surname,
+                    Name = e.Name,
+                    Surname = e.Surname,
                     BirthDate = e.BirthDate,
                     ParkingId = e.ParkingId ?? 0
                 })
