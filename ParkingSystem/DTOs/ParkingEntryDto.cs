@@ -21,5 +21,6 @@ public class CreateParkingEntryDto
 
 public class CreateParkingLeaveDto
 {
+    public int ParkingEntryId { get; set; }
     public DateTime? TicketExpiration { get; set; }
 }

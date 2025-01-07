@@ -72,10 +72,10 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet("{id}")]
-        //[Authorize]
         public async Task<ActionResult<ParkingEntryDto>> GetParkingEntry(int id)
         {
             var parkingEntry = await _dataContext.ParkingEntries
+                .Where(p => p.Id == id)
                 .Select(p => new ParkingEntryDto
                 {
                     Id = p.Id,
@@ -86,8 +86,16 @@ namespace ParkingSystem.Controllers
                 })
                 .FirstOrDefaultAsync();
 
+            if (parkingEntry == null)
+            {
+                Console.WriteLine($"Parking entry with ID {id} not found.");
+                return NotFound($"Parking entry with ID {id} not found.");
+            }
+
+            Console.WriteLine($"Fetched parking entry: {System.Text.Json.JsonSerializer.Serialize(parkingEntry)}");
             return Ok(parkingEntry);
         }
+
 
         [HttpDelete]
         //[Authorize]
@@ -119,7 +127,8 @@ namespace ParkingSystem.Controllers
         //[Authorize]
         public async Task<ActionResult<List<ParkingEntryDto>>> AddParkingLeave([FromRoute] int parkingEntryId, [FromBody] CreateParkingLeaveDto createParkingLeaveDto)
         {
-
+            Console.WriteLine($"Received ParkingEntryId: {parkingEntryId}");
+            Console.WriteLine($"Received TicketExpiration: {createParkingLeaveDto.TicketExpiration}");
             var entry = await _dataContext.ParkingEntries.FindAsync(parkingEntryId);
 
             if (entry == null)
@@ -177,7 +186,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet("{ParkingId}/entries")]
-        public async Task<ActionResult<List<ParkingEntryDto>>> GetParkingEntriesForParkingId([FromRoute] int ParkingId)
+        public async Task<ActionResult<List<ParkingEntryDto>>> GetParkingEntriesByParkingId([FromRoute] int ParkingId)
         {
             var parkingEntries = await _dataContext.ParkingEntries
                 .Where(p => p.ParkingId == ParkingId)
