@@ -57,7 +57,7 @@ namespace ParkingSystem.Controllers
             var employee = await _dataContext.Employees
                 .FirstOrDefaultAsync(e => e.Username == loginDto.Username);
 
-            if (employee != null && BCrypt.Net.BCrypt.Verify(loginDto.Password, employee.Password))
+            if (employee != null && employee.Username == loginDto.Username && BCrypt.Net.BCrypt.Verify(loginDto.Password, employee.Password))
             {
                 var token = GenerateJwtToken(employee.Username);
                 return Ok(new { token });
