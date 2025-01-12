@@ -20,7 +20,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> AddEmployee([FromBody] CreateEmployeeDto createEmployeeDto, [FromQuery] int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
@@ -58,7 +58,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> UpdateEmployee(UpdateEmployeeDto updatedEmployee, int parkingId)
         {
             var parking = await _dataContext.Parkings.FindAsync(parkingId);
@@ -95,7 +95,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> GetAllEmployees()
         {
             var employees = await _dataContext.Employees
@@ -112,7 +112,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet("{id}")]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<EmployeeDto>> GetEmployee(int id)
         {
             var employee = await _dataContext.Employees
@@ -134,7 +134,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpDelete]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> DeleteEmployee(int id)
         {
             var dbEmployee = await _dataContext.Employees.FindAsync(id);

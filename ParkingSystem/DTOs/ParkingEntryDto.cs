@@ -11,16 +11,14 @@ namespace ParkingSystem.DTOs
         public DateTime? TicketExpiration { get; set; }
         public int? ParkingId { get; set; }
     }
-}
+    public class CreateParkingEntryDto
+    {
+        public string RegistrationPlate { get; set; }
+        public DateTime? TicketTakeover { get; set; }
+    }
 
-public class CreateParkingEntryDto
-{
-    public string RegistrationPlate { get; set; }
-    public DateTime? TicketTakeover { get; set; }
-}
-
-public class CreateParkingLeaveDto
-{
-    public int ParkingEntryId { get; set; }
-    public DateTime? TicketExpiration { get; set; }
+    public class CreateParkingLeaveDto
+    {
+        public DateTime? TicketExpiration { get; set; }
+    }
 }

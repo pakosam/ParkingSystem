@@ -20,7 +20,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPost]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> AddParking(CreateParkingDto createParkingDto)
         {
             var parking = new Parking
@@ -51,7 +51,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpPut]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> UpdateParking(Parking updatedParking)
         {
             var dbParking = await _dataContext.Parkings.FindAsync(updatedParking.Id);
@@ -83,7 +83,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> GetAllParkings()
         {
             var parkings = await _dataContext.Parkings
@@ -102,7 +102,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpGet("{id}")]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<ParkingDto>> GetParking(int id)
         {
             var parking = await _dataContext.Parkings
@@ -122,7 +122,7 @@ namespace ParkingSystem.Controllers
         }
 
         [HttpDelete]
-        //[Authorize]
+        [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> DeleteParking(int id)
         {
             var dbParking = await _dataContext.Parkings.FindAsync(id);
