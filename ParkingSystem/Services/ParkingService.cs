@@ -51,9 +51,20 @@ namespace ParkingSystem.Services
             throw new NotImplementedException();
         }
 
-        public Task<List<ParkingDto>> UpdateParkingAsync(Parking updatedParking)
+        public async Task<List<ParkingDto>> UpdateParkingAsync(Parking updatedParking)
         {
-            throw new NotImplementedException();
+            if (updatedParking.Name.Length < 3 ||
+                updatedParking.NumberOfPlaces <= 0 ||
+                updatedParking.PricePerHour <= 0 ||
+                updatedParking.ClosingTime <= updatedParking.OpeningTime)
+                throw new NotImplementedException();
+
+            await _parkingRepository.UpdateParkingAsync(updatedParking);
+
+            var parkings = await _parkingRepository.GetAllParkingsAsync();
+
+            return parkings;
+
         }
     }
 }

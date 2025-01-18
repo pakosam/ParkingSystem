@@ -35,36 +35,7 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> UpdateParking(Parking updatedParking)
         {
-            var dbParking = await _dataContext.Parkings.FindAsync(updatedParking.Id);
-
-            if (dbParking == null)
-                return NotFound("Parking not found.");
-
-            dbParking.Name = updatedParking.Name;
-            dbParking.NumberOfPlaces = updatedParking.NumberOfPlaces;
-            dbParking.OpeningTime = updatedParking.OpeningTime;
-            dbParking.ClosingTime = updatedParking.ClosingTime;
-            dbParking.PricePerHour = updatedParking.PricePerHour;
-
-            if (dbParking.Name.Length < 3 || 
-                dbParking.NumberOfPlaces <= 0 || 
-                dbParking.PricePerHour <= 0 || 
-                dbParking.ClosingTime <= dbParking.OpeningTime)
-                return NotFound("Data is not filled properly");
-
-            await _dataContext.SaveChangesAsync();
-
-            var parkings = await _dataContext.Parkings
-                .Select(p => new ParkingDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    NumberOfPlaces = p.NumberOfPlaces,
-                    OpeningTime = p.OpeningTime,
-                    ClosingTime = p.ClosingTime,
-                    PricePerHour = (int)p.PricePerHour
-                })
-                .ToListAsync();
+            var parkings = await _parkingService.UpdateParkingAsync(updatedParking);
 
             return Ok(parkings);
         }

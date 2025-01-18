@@ -34,5 +34,21 @@ namespace ParkingSystem.Repositories
                  .ToListAsync();
             return parkings;
         }
+
+        public async Task UpdateParkingAsync(Parking updatedParking)
+        {
+            var dbParking = await _dataContext.Parkings.FindAsync(updatedParking.Id);
+
+            if (dbParking == null)
+                throw new NotImplementedException();
+
+            dbParking.Name = updatedParking.Name;
+            dbParking.NumberOfPlaces = updatedParking.NumberOfPlaces;
+            dbParking.OpeningTime = updatedParking.OpeningTime;
+            dbParking.ClosingTime = updatedParking.ClosingTime;
+            dbParking.PricePerHour = updatedParking.PricePerHour;
+
+            await _dataContext.SaveChangesAsync();
+        }
     }
 }
