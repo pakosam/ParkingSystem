@@ -126,9 +126,7 @@ namespace ParkingSystem.Controllers
 
         [HttpPut("{parkingEntryId}/leaves")]
         [Authorize]
-        public async Task<ActionResult<List<ParkingEntryDto>>> AddParkingLeave(
-    [FromRoute] int parkingEntryId,
-    [FromBody] CreateParkingLeaveDto createParkingLeaveDto)
+        public async Task<ActionResult<List<ParkingEntryDto>>> AddParkingLeave([FromRoute] int parkingEntryId, [FromBody] CreateParkingLeaveDto createParkingLeaveDto)
         {
             try
             {

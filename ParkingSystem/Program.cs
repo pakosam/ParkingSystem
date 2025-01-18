@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ParkingSystem.Data;
+using ParkingSystem.Repositories;
+using ParkingSystem.Services;
 using System.Security.Claims;
 using System.Text;
 
@@ -65,6 +67,10 @@ builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddScoped<IParkingRepository, ParkingRepository>();
+builder.Services.AddScoped<IParkingService, ParkingService>();
+
 
 var app = builder.Build();
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.MicrosoftExtensions;
 using ParkingSystem.Data;
 using ParkingSystem.DTOs;
 using ParkingSystem.Entities;
@@ -29,6 +30,33 @@ namespace ParkingSystem.Controllers
             {
                 return NotFound($"Parking with ID {parkingId} not found.");
             }
+
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (createEmployeeDto.BirthDate == DateOnly.MinValue)
+            {
+                return BadRequest("Birth date is required");
+            }
+
+            var age = today.Year - createEmployeeDto.BirthDate.Year;
+            if (createEmployeeDto.BirthDate > today.AddYears(-age))
+            {
+                age--;
+            }
+
+            if (age > 70)
+            {
+                return BadRequest("Employee cannot be older than 70 years.");
+            }
+
+            if (createEmployeeDto.Name.Length < 3 ||
+                createEmployeeDto.Surname.Length < 3 ||
+                createEmployeeDto.Username.Length < 4 ||
+                createEmployeeDto.Password.Length < 10)
+            {
+                return BadRequest("Data is not filled properly");
+            }
+
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(createEmployeeDto.Password);
 
             var employee = new Employee
@@ -73,11 +101,34 @@ namespace ParkingSystem.Controllers
             if (dbEmployee == null)
                 return NotFound("Employee not found.");
 
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            if (updatedEmployee.BirthDate == DateOnly.MinValue)
+            {
+                return BadRequest("Birth date is required");
+            }
+
+            var age = today.Year - updatedEmployee.BirthDate.Year;
+            if (updatedEmployee.BirthDate > today.AddYears(-age))
+            {
+                age--;
+            }
+
+            if (age > 70)
+            {
+                return BadRequest("Employee cannot be older than 70 years.");
+            }
 
             dbEmployee.Name = updatedEmployee.Name;
             dbEmployee.Surname = updatedEmployee.Surname;
             dbEmployee.BirthDate = updatedEmployee.BirthDate;
             dbEmployee.ParkingId = parkingId;
+
+            if (dbEmployee.Name.Length < 3 ||
+                dbEmployee.Surname.Length <= 3)
+            {
+                return BadRequest("Data is not filled properly");
+            }
 
             await _dataContext.SaveChangesAsync();
 

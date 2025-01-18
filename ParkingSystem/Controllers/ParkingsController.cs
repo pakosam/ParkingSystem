@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ParkingSystem.Data;
 using ParkingSystem.DTOs;
 using ParkingSystem.Entities;
+using ParkingSystem.Services;
 
 namespace ParkingSystem.Controllers
 {
@@ -13,39 +14,19 @@ namespace ParkingSystem.Controllers
     public class ParkingsController : ControllerBase
     {
         private readonly DataContext _dataContext;
+        private readonly IParkingService _parkingService;
         public List<int> Items { get; set; }
-        public ParkingsController(DataContext dataContext)
+        public ParkingsController(DataContext dataContext, IParkingService ParkingService)
         {
             _dataContext = dataContext;
+            _parkingService = ParkingService;
         }
 
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> AddParking(CreateParkingDto createParkingDto)
         {
-            var parking = new Parking
-            {
-                Name = createParkingDto.Name,
-                NumberOfPlaces = createParkingDto.NumberOfPlaces,
-                OpeningTime = createParkingDto.OpeningTime,
-                ClosingTime = createParkingDto.ClosingTime,
-                PricePerHour = createParkingDto.PricePerHour
-            };
-
-            _dataContext.Parkings.Add(parking);
-            await _dataContext.SaveChangesAsync();
-
-            var parkings = await _dataContext.Parkings
-                .Select(p => new ParkingDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    NumberOfPlaces = p.NumberOfPlaces,
-                    OpeningTime = p.OpeningTime,
-                    ClosingTime = p.ClosingTime,
-                    PricePerHour = (int)p.PricePerHour
-                })
-                .ToListAsync();
+            var parkings = await _parkingService.CreateParkingAsync(createParkingDto);
 
             return Ok(parkings);
         }
@@ -64,6 +45,12 @@ namespace ParkingSystem.Controllers
             dbParking.OpeningTime = updatedParking.OpeningTime;
             dbParking.ClosingTime = updatedParking.ClosingTime;
             dbParking.PricePerHour = updatedParking.PricePerHour;
+
+            if (dbParking.Name.Length < 3 || 
+                dbParking.NumberOfPlaces <= 0 || 
+                dbParking.PricePerHour <= 0 || 
+                dbParking.ClosingTime <= dbParking.OpeningTime)
+                return NotFound("Data is not filled properly");
 
             await _dataContext.SaveChangesAsync();
 
