@@ -83,34 +83,7 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> DeleteParking(int id)
         {
-            var dbParking = await _dataContext.Parkings.FindAsync(id);
-
-            if (dbParking == null)
-                return NotFound("Parking not found.");
-
-            var employeesWithParking = await _dataContext.Employees
-                .Where(e => e.ParkingId == id)
-                .ToListAsync();
-
-            foreach (var employee in employeesWithParking)
-            {
-                employee.ParkingId = null;
-            }
-
-            _dataContext.Parkings.Remove(dbParking);
-            await _dataContext.SaveChangesAsync();
-
-            var parkings = await _dataContext.Parkings
-                .Select(p => new ParkingDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    NumberOfPlaces = p.NumberOfPlaces,
-                    OpeningTime = p.OpeningTime,
-                    ClosingTime = p.ClosingTime,
-                    PricePerHour = (int)p.PricePerHour
-                })
-                .ToListAsync();
+            var parkings = await _parkingService.DeleteParkingAsync(id);
 
             return Ok(parkings);
         }

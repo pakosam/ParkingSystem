@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ParkingSystem.Data;
 using ParkingSystem.DTOs;
 using ParkingSystem.Entities;
@@ -35,6 +36,13 @@ namespace ParkingSystem.Repositories
             return parkings;
         }
 
+        public async Task<Parking> GetParkingAsync(int id)
+        {
+            var parking = await _dataContext.Parkings
+                .FirstOrDefaultAsync(p => p.Id == id);
+            return parking;
+        }
+
         public async Task UpdateParkingAsync(Parking updatedParking)
         {
             var dbParking = await _dataContext.Parkings.FindAsync(updatedParking.Id);
@@ -42,12 +50,14 @@ namespace ParkingSystem.Repositories
             if (dbParking == null)
                 throw new NotImplementedException();
 
-            dbParking.Name = updatedParking.Name;
-            dbParking.NumberOfPlaces = updatedParking.NumberOfPlaces;
-            dbParking.OpeningTime = updatedParking.OpeningTime;
-            dbParking.ClosingTime = updatedParking.ClosingTime;
-            dbParking.PricePerHour = updatedParking.PricePerHour;
 
+            _dataContext.Parkings.Update(updatedParking);
+            await _dataContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteParkingAsync(Parking parking)
+        {
+            _dataContext.Parkings.Remove(parking);
             await _dataContext.SaveChangesAsync();
         }
     }
