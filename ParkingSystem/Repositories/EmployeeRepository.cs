@@ -14,19 +14,23 @@ namespace ParkingSystem.Repositories
             _dataContext = dataContext;
         }
 
-        public async Task RemoveParkingIdFromEmployeesAsync(int parkingId)
+        public async Task<List<Employee>> GetEmployeesByParkingIdAsync (int parkingId)
         {
-            var employeesWithParking = await _dataContext.Employees
-                .Where(e => e.ParkingId == parkingId)
+            var employeesByParkingId = await _dataContext.Employees 
+                .Where(e => e.ParkingId == parkingId) // GetEMployyeesByParkingIdAsync
                 .ToListAsync();
 
-            foreach (var employee in employeesWithParking)
+            return employeesByParkingId;
+        }
+
+        public async Task UpdateEmployeesParkingIdAsync(List<Employee> employees, int parkingId)
+        {
+            foreach (var employee in employees) // ForPetlja ide u service
             {
-                employee.ParkingId = null;
+                employee.ParkingId = null; // Ovo ide u UpdateEmployee
             }
 
             await _dataContext.SaveChangesAsync();
         }
-
     }
 }

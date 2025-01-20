@@ -13,12 +13,10 @@ namespace ParkingSystem.Controllers
     [ApiController]
     public class ParkingsController : ControllerBase
     {
-        private readonly DataContext _dataContext;
         private readonly IParkingService _parkingService;
         public List<int> Items { get; set; }
-        public ParkingsController(DataContext dataContext, IParkingService ParkingService)
+        public ParkingsController(IParkingService ParkingService)
         {
-            _dataContext = dataContext;
             _parkingService = ParkingService;
         }
 
@@ -44,39 +42,42 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> GetAllParkings()
         {
-            var parkings = await _dataContext.Parkings
-                .Select(p => new ParkingDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    NumberOfPlaces = p.NumberOfPlaces,
-                    OpeningTime = p.OpeningTime,
-                    ClosingTime = p.ClosingTime,
-                    PricePerHour = (int)p.PricePerHour
-                })
-                .ToListAsync();
-
-            return Ok(parkings);
+            try
+            {
+                var parkings = await _parkingService.GetAllParkingsAsync();
+                return Ok(parkings);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Return a 404 Not Found with the exception message
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<ParkingDto>> GetParking(int id)
         {
-            var parking = await _dataContext.Parkings
-                .Where(p => p.Id == id)
-                .Select(p => new ParkingDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    NumberOfPlaces = p.NumberOfPlaces,
-                    OpeningTime = p.OpeningTime,
-                    ClosingTime = p.ClosingTime,
-                    PricePerHour = (int)p.PricePerHour
-                })
-                .FirstOrDefaultAsync();
-
-            return Ok(parking);
+            try
+            {
+                var parking = await _parkingService.GetParkingAsync(id);
+                return Ok(parking);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Return a 404 Not Found with the exception message
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpDelete]

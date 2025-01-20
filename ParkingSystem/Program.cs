@@ -80,9 +80,16 @@ app.UseCors("AllowBlazorApp");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage(); // Enables detailed error messages
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    app.UseExceptionHandler("/error"); // Generic error handler for production
+    app.UseHsts();
+}
+
 
 app.UseHttpsRedirection();
 

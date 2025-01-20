@@ -20,19 +20,9 @@ namespace ParkingSystem.Repositories
             await _dataContext.SaveChangesAsync();
         }
 
-        public async Task<List<ParkingDto>> GetAllParkingsAsync()
+        public async Task<List<Parking>> GetAllParkingsAsync()
         {
-            var parkings = await _dataContext.Parkings
-                 .Select(p => new ParkingDto
-                 {
-                     Id = p.Id,
-                     Name = p.Name,
-                     NumberOfPlaces = p.NumberOfPlaces,
-                     OpeningTime = p.OpeningTime,
-                     ClosingTime = p.ClosingTime,
-                     PricePerHour = (int)p.PricePerHour
-                 })
-                 .ToListAsync();
+            var parkings = await _dataContext.Parkings.ToListAsync();
             return parkings;
         }
 
@@ -45,12 +35,6 @@ namespace ParkingSystem.Repositories
 
         public async Task UpdateParkingAsync(Parking updatedParking)
         {
-            var dbParking = await _dataContext.Parkings.FindAsync(updatedParking.Id);
-
-            if (dbParking == null)
-                throw new NotImplementedException();
-
-
             _dataContext.Parkings.Update(updatedParking);
             await _dataContext.SaveChangesAsync();
         }

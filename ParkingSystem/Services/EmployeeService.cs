@@ -1,4 +1,7 @@
-﻿using ParkingSystem.Repositories;
+﻿using ParkingSystem.Data;
+using ParkingSystem.DTOs;
+using ParkingSystem.Entities;
+using ParkingSystem.Repositories;
 
 namespace ParkingSystem.Services
 {

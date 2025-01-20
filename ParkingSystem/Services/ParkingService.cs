@@ -35,8 +35,19 @@ namespace ParkingSystem.Services
 
             var parkings = await _parkingRepository.GetAllParkingsAsync();
 
-            return parkings;
+            var parkingDtos = parkings
+                .Select(p => new ParkingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NumberOfPlaces = p.NumberOfPlaces,
+                    OpeningTime = p.OpeningTime,
+                    ClosingTime = p.ClosingTime,
+                    PricePerHour = (int)p.PricePerHour
+                })
+                .ToList();
 
+            return parkingDtos;
         }
 
         public async Task<List<ParkingDto>> DeleteParkingAsync(int id)
@@ -46,34 +57,89 @@ namespace ParkingSystem.Services
             if (parking == null)
                 throw new ArgumentException($"Parking with ID {id} does not exist.");
 
-            await _employeeRepository.RemoveParkingIdFromEmployeesAsync(id);
+            var employeesByParkingId = await _employeeRepository.GetEmployeesByParkingIdAsync(id);
 
+            await _employeeRepository.UpdateEmployeesParkingIdAsync(employeesByParkingId, id);
+            
             await _parkingRepository.DeleteParkingAsync(parking);
 
             var parkings = await _parkingRepository.GetAllParkingsAsync();
 
-            return parkings;
+            var parkingDtos = parkings
+                .Select(p => new ParkingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NumberOfPlaces = p.NumberOfPlaces,
+                    OpeningTime = p.OpeningTime,
+                    ClosingTime = p.ClosingTime,
+                    PricePerHour = (int)p.PricePerHour
+                })
+                .ToList();
+
+            return parkingDtos;
         }
 
-        public Task<List<ParkingDto>> GetAllParkingsAsync()
+        public async Task<List<ParkingDto>> GetAllParkingsAsync()
         {
-            throw new NotImplementedException();
+            var parkings = await _parkingRepository.GetAllParkingsAsync();
+
+            if (parkings == null)
+            {
+                // Handle the error in the service layer and throw a meaningful exception
+                throw new KeyNotFoundException($"There are no existing parkings.");
+            }
+
+            var parkingDtos = parkings
+                 .Select(p => new ParkingDto
+                 {
+                     Id = p.Id,
+                     Name = p.Name,
+                     NumberOfPlaces = p.NumberOfPlaces,
+                     OpeningTime = p.OpeningTime,
+                     ClosingTime = p.ClosingTime,
+                     PricePerHour = (int)p.PricePerHour
+                 })
+                 .ToList();
+
+            return parkingDtos;
         }
 
-        public Task<ParkingDto> GetParkingAsync(int id)
+        public async Task<ParkingDto> GetParkingAsync(int id)
         {
-            throw new NotImplementedException();
+            var parking = await _parkingRepository.GetParkingAsync(id);
+
+            if (parking == null)
+            {
+                // Handle the error in the service layer and throw a meaningful exception
+                throw new KeyNotFoundException($"Parking with ID {id} does not exist.");
+            }
+
+            // Convert the entity to DTO and return
+            return new ParkingDto
+            {
+                Id = parking.Id,
+                Name = parking.Name,
+                NumberOfPlaces = parking.NumberOfPlaces,
+                OpeningTime = parking.OpeningTime,
+                ClosingTime = parking.ClosingTime,
+                PricePerHour = (int)parking.PricePerHour
+            };
         }
 
         public async Task<List<ParkingDto>> UpdateParkingAsync(Parking updatedParking)
         {
+            var dbParking = await _parkingRepository.GetParkingAsync(updatedParking.Id);
+
+            if (dbParking == null)
+                throw new ArgumentException($"Parking with ID {updatedParking.Id} does not exist.");
+
             if (updatedParking.Name.Length < 3 ||
                 updatedParking.NumberOfPlaces <= 0 ||
                 updatedParking.PricePerHour <= 0 ||
                 updatedParking.ClosingTime <= updatedParking.OpeningTime)
-                throw new NotImplementedException();
+                throw new ArgumentException("Invalid data provided.");
 
-            var dbParking = await _parkingRepository.GetParkingAsync(updatedParking.Id);
 
             dbParking.Name = updatedParking.Name;
             dbParking.NumberOfPlaces = updatedParking.NumberOfPlaces;
@@ -85,8 +151,19 @@ namespace ParkingSystem.Services
 
             var parkings = await _parkingRepository.GetAllParkingsAsync();
 
-            return parkings;
+            var parkingDtos = parkings
+                .Select(p => new ParkingDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    NumberOfPlaces = p.NumberOfPlaces,
+                    OpeningTime = p.OpeningTime,
+                    ClosingTime = p.ClosingTime,
+                    PricePerHour = (int)p.PricePerHour
+                })
+                .ToList();
 
+            return parkingDtos;
         }
     }
 }
