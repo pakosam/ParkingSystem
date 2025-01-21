@@ -14,6 +14,42 @@ namespace ParkingSystem.Repositories
             _dataContext = dataContext;
         }
 
+        public async Task CreateEmployeeAsync(Employee employee)
+        {
+            _dataContext.Employees.Add(employee);
+            await _dataContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteEmployeeAsync(Employee employee)
+        {
+            _dataContext.Employees.Remove(employee);
+            await _dataContext.SaveChangesAsync();
+        }
+
+        public async Task<List<Employee>> GetAllEmployeesAsync()
+        {
+            Console.WriteLine("Fetching all employees...");
+            var employees = await _dataContext.Employees.ToListAsync();
+            Console.WriteLine($"Found {employees.Count} employees.");
+            return employees;
+        }
+
+        public async Task<Employee> GetEmployeeAsync(int id)
+        {
+            var employee = await _dataContext.Employees
+                .FirstOrDefaultAsync(e => e.Id == id);
+            return employee;
+        }
+
+        public async Task UpdateEmployeeAsync(Employee updatedEmployee)
+        {
+            _dataContext.Employees.Update(updatedEmployee);
+            await _dataContext.SaveChangesAsync();
+        }
+
+
+
+
         public async Task<List<Employee>> GetEmployeesByParkingIdAsync (int parkingId)
         {
             var employeesByParkingId = await _dataContext.Employees 

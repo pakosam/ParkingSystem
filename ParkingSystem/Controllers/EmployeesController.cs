@@ -6,6 +6,7 @@ using Microsoft.OpenApi.MicrosoftExtensions;
 using ParkingSystem.Data;
 using ParkingSystem.DTOs;
 using ParkingSystem.Entities;
+using ParkingSystem.Services;
 
 namespace ParkingSystem.Controllers
 {
@@ -13,74 +14,23 @@ namespace ParkingSystem.Controllers
     [ApiController]
     public class EmployeesController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly IEmployeeService _employeeService;
+        private readonly IParkingService _parkingService;
+
         public List <int> Items { get; set; }
-        public EmployeesController(DataContext dataContext)
+        public EmployeesController(IEmployeeService EmployeeSerivce, IParkingService ParkingService)
         {
-            _dataContext = dataContext;
+            _employeeService = EmployeeSerivce;
+            _parkingService = ParkingService;
         }
 
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> AddEmployee([FromBody] CreateEmployeeDto createEmployeeDto, [FromQuery] int parkingId)
         {
-            var parking = await _dataContext.Parkings.FindAsync(parkingId);
+            var parking = await _parkingService.GetParkingAsync(parkingId);
 
-            if (parking == null)
-            {
-                return NotFound($"Parking with ID {parkingId} not found.");
-            }
-
-            var today = DateOnly.FromDateTime(DateTime.Today);
-
-            if (createEmployeeDto.BirthDate == DateOnly.MinValue)
-            {
-                return BadRequest("Birth date is required");
-            }
-
-            var age = today.Year - createEmployeeDto.BirthDate.Year;
-            if (createEmployeeDto.BirthDate > today.AddYears(-age))
-            {
-                age--;
-            }
-
-            if (age > 70)
-            {
-                return BadRequest("Employee cannot be older than 70 years.");
-            }
-
-            if (createEmployeeDto.Name.Length < 3 ||
-                createEmployeeDto.Surname.Length < 3 ||
-                createEmployeeDto.Username.Length < 4 ||
-                createEmployeeDto.Password.Length < 10)
-            {
-                return BadRequest("Data is not filled properly");
-            }
-
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(createEmployeeDto.Password);
-
-            var employee = new Employee
-            {
-                Name = createEmployeeDto.Name,
-                Surname = createEmployeeDto.Surname,
-                BirthDate = createEmployeeDto.BirthDate,
-                Username = createEmployeeDto.Username,
-                Password = hashedPassword,
-                ParkingId = parkingId
-            };
-
-            _dataContext.Employees.Add(employee);
-            await _dataContext.SaveChangesAsync();
-
-            var employees = await _dataContext.Employees
-                .Select(e => new EmployeeDto
-                {
-                    Id = e.Id,
-                    FullName = e.Name + " " + e.Surname,
-                    BirthDate = e.BirthDate,
-                    ParkingId = e.ParkingId ?? 0
-                })
-                .ToListAsync();
+            var employees = await _employeeService.CreateEmployeeAsync(createEmployeeDto, parkingId);
 
             return Ok(employees);
         }
@@ -89,58 +39,9 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> UpdateEmployee(UpdateEmployeeDto updatedEmployee, int parkingId)
         {
-            var parking = await _dataContext.Parkings.FindAsync(parkingId);
+            var parking = await _parkingService.GetParkingAsync(parkingId);
 
-            if (parking == null)
-            {
-                return NotFound($"Parking with ID {parkingId} not found.");
-            }
-
-            var dbEmployee = await _dataContext.Employees.FindAsync(updatedEmployee.Id);
-
-            if (dbEmployee == null)
-                return NotFound("Employee not found.");
-
-            var today = DateOnly.FromDateTime(DateTime.Today);
-
-            if (updatedEmployee.BirthDate == DateOnly.MinValue)
-            {
-                return BadRequest("Birth date is required");
-            }
-
-            var age = today.Year - updatedEmployee.BirthDate.Year;
-            if (updatedEmployee.BirthDate > today.AddYears(-age))
-            {
-                age--;
-            }
-
-            if (age > 70)
-            {
-                return BadRequest("Employee cannot be older than 70 years.");
-            }
-
-            dbEmployee.Name = updatedEmployee.Name;
-            dbEmployee.Surname = updatedEmployee.Surname;
-            dbEmployee.BirthDate = updatedEmployee.BirthDate;
-            dbEmployee.ParkingId = parkingId;
-
-            if (dbEmployee.Name.Length < 3 ||
-                dbEmployee.Surname.Length <= 3)
-            {
-                return BadRequest("Data is not filled properly");
-            }
-
-            await _dataContext.SaveChangesAsync();
-
-            var employees = await _dataContext.Employees
-                .Select(e => new EmployeeDto
-                {
-                    Id = e.Id,
-                    FullName = e.Name + " " + e.Surname,
-                    BirthDate = e.BirthDate,
-                    ParkingId = e.ParkingId ?? 0
-                })
-                .ToListAsync();
+            var employees = await _employeeService.UpdateEmployeeAsync(updatedEmployee, parkingId);
 
             return Ok(employees);
         }
@@ -149,62 +50,51 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> GetAllEmployees()
         {
-            var employees = await _dataContext.Employees
-                .Select(e => new EmployeeDto
-                {
-                    Id = e.Id,
-                    FullName = e.Name + " " + e.Surname,
-                    BirthDate = e.BirthDate,
-                    ParkingId = e.ParkingId ?? 0
-                })
-                .ToListAsync();
-
-            return Ok(employees);
+            try
+            {
+                var employees = await _employeeService.GetAllEmployeesAsync();
+                return Ok(employees);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Return a 404 Not Found with the exception message
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<EmployeeDto>> GetEmployee(int id)
         {
-            var employee = await _dataContext.Employees
-                .Where(p => p.Id == id)
-                .Select(e => new UpdateEmployeeDto
-                {
-                    Id = e.Id,
-                    Name = e.Name,
-                    Surname = e.Surname,
-                    BirthDate = e.BirthDate,
-                    ParkingId = e.ParkingId ?? 0
-                })
-                .FirstOrDefaultAsync();
-
-            if (employee == null)
-                return NotFound("Employee not found.");
-
-            return Ok(employee);
+            try
+            {
+                var employee = await _employeeService.GetEmployeeAsync(id);
+                return Ok(employee);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Return a 404 Not Found with the exception message
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpDelete]
         [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> DeleteEmployee(int id)
         {
-            var dbEmployee = await _dataContext.Employees.FindAsync(id);
+            //var dbEmployee = await _employeeService.GetEmployeeAsync(id);
 
-            if (dbEmployee == null)
-                return NotFound("Employee not found.");
-
-            _dataContext.Employees.Remove(dbEmployee);
-            await _dataContext.SaveChangesAsync();
-
-            var employees = await _dataContext.Employees
-                .Select(e => new EmployeeDto
-                {
-                    Id = e.Id,
-                    FullName = e.Name + " " + e.Surname,
-                    BirthDate = e.BirthDate,
-                    ParkingId = e.ParkingId ?? 0
-                })
-                .ToListAsync();
+            var employees = await _employeeService.DeleteEmployeeAsync(id);
 
             return Ok(employees);
         }
