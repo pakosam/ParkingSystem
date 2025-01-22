@@ -147,7 +147,7 @@ namespace ParkingSystem.Services
             dbParking.ClosingTime = updatedParking.ClosingTime;
             dbParking.PricePerHour = (int)updatedParking.PricePerHour;
 
-            await _parkingRepository.UpdateParkingAsync(updatedParking);
+            await _parkingRepository.UpdateParkingAsync(dbParking);
 
             var parkings = await _parkingRepository.GetAllParkingsAsync();
 

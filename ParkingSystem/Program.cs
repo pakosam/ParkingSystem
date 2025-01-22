@@ -71,6 +71,11 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddScoped<IParkingRepository, ParkingRepository>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IParkingService, ParkingService>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
 
 
 var app = builder.Build();
