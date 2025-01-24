@@ -28,9 +28,7 @@ namespace ParkingSystem.Repositories
 
         public async Task<List<Employee>> GetAllEmployeesAsync()
         {
-            Console.WriteLine("Fetching all employees...");
             var employees = await _dataContext.Employees.ToListAsync();
-            Console.WriteLine($"Found {employees.Count} employees.");
             return employees;
         }
 
@@ -53,7 +51,7 @@ namespace ParkingSystem.Repositories
         public async Task<List<Employee>> GetEmployeesByParkingIdAsync (int parkingId)
         {
             var employeesByParkingId = await _dataContext.Employees 
-                .Where(e => e.ParkingId == parkingId) // GetEMployyeesByParkingIdAsync
+                .Where(e => e.ParkingId == parkingId) 
                 .ToListAsync();
 
             return employeesByParkingId;
@@ -61,9 +59,9 @@ namespace ParkingSystem.Repositories
 
         public async Task UpdateEmployeesParkingIdAsync(List<Employee> employees, int parkingId)
         {
-            foreach (var employee in employees) // ForPetlja ide u service
+            foreach (var employee in employees) 
             {
-                employee.ParkingId = null; // Ovo ide u UpdateEmployee
+                employee.ParkingId = null; 
             }
 
             await _dataContext.SaveChangesAsync();

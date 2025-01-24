@@ -86,7 +86,6 @@ namespace ParkingSystem.Services
 
             if (parkings == null)
             {
-                // Handle the error in the service layer and throw a meaningful exception
                 throw new KeyNotFoundException($"There are no existing parkings.");
             }
 
@@ -111,11 +110,9 @@ namespace ParkingSystem.Services
 
             if (parking == null)
             {
-                // Handle the error in the service layer and throw a meaningful exception
                 throw new KeyNotFoundException($"Parking with ID {id} does not exist.");
             }
 
-            // Convert the entity to DTO and return
             return new ParkingDto
             {
                 Id = parking.Id,

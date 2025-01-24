@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ParkingSystem.Data;
 using ParkingSystem.DTOs;
 using ParkingSystem.Entities;
+using ParkingSystem.Services;
 
 namespace ParkingSystem.Controllers
 {
@@ -12,43 +13,24 @@ namespace ParkingSystem.Controllers
     [ApiController]
     public class ParkingEntriesController : ControllerBase
     {
-        private readonly DataContext _dataContext;
+        private readonly IEmployeeService _employeeService;
+        private readonly IParkingService _parkingService;
+        private readonly IParkingEntryService _parkingEntryService;
         public List<int> Items { get; set; }
-        public ParkingEntriesController(DataContext dataContext)
+        public ParkingEntriesController(IEmployeeService EmployeeSerivce, IParkingService ParkingService, IParkingEntryService ParkingEntryService)
         {
-            _dataContext = dataContext;
+            _employeeService = EmployeeSerivce;
+            _parkingService = ParkingService;
+            _parkingEntryService = ParkingEntryService;
         }
 
         [HttpPost("{ParkingId}/entries")]
         [Authorize]
         public async Task<ActionResult<List<ParkingEntryDto>>> AddParkingEntry([FromRoute] int ParkingId, [FromBody] CreateParkingEntryDto createParkingEntryDto)
         {
-            var parking = await _dataContext.Parkings.FindAsync(ParkingId);
+            var parking = await _parkingService.GetParkingAsync(ParkingId);
 
-            if (parking == null)
-                return NotFound($"Parking with ID {ParkingId} not found.");
-
-            var parkingEntry = new ParkingEntry
-            {
-                RegistrationPlate = createParkingEntryDto.RegistrationPlate,
-                TicketTakeover = createParkingEntryDto.TicketTakeover,
-                ParkingId = ParkingId
-            }; 
-
-            _dataContext.ParkingEntries.Add(parkingEntry);
-            await _dataContext.SaveChangesAsync();
-
-            var parkingEntries = await _dataContext.ParkingEntries
-                .Where(p => p.ParkingId == ParkingId)
-                .Select(p => new ParkingEntryDto
-                {
-                     Id = p.Id,
-                     RegistrationPlate = p.RegistrationPlate,
-                     TicketTakeover = p.TicketTakeover,
-                     TicketExpiration = p.TicketExpiration,
-                     ParkingId = p.ParkingId
-                })
-                .ToListAsync();
+            var parkingEntries = await _parkingEntryService.CreateParkingEntryAsync(createParkingEntryDto, ParkingId);
 
             return Ok(parkingEntries);
         }
@@ -57,172 +39,83 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<ParkingEntryDto>>> GetAllParkingEntries()
         {
-            var parkingEntries = await _dataContext.ParkingEntries
-                .Select(p => new ParkingEntryDto
-                {
-                    Id = p.Id,
-                    RegistrationPlate = p.RegistrationPlate,
-                    TicketTakeover = p.TicketTakeover,
-                    TicketExpiration = p.TicketExpiration,
-                    ParkingId = p.ParkingId
-                })
-                .ToListAsync();
-
-            return Ok(parkingEntries);
+            try
+            {
+                var parkingEntries = await _parkingEntryService.GetAllParkingEntriesAsync();
+                return Ok(parkingEntries);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                // Return a 404 Not Found with the exception message
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<ParkingEntryDto>> GetParkingEntry(int id)
         {
-            var parkingEntry = await _dataContext.ParkingEntries
-                .Where(p => p.Id == id)
-                .Select(p => new ParkingEntryDto
-                {
-                    Id = p.Id,
-                    RegistrationPlate = p.RegistrationPlate,
-                    TicketTakeover = p.TicketTakeover,
-                    TicketExpiration = p.TicketExpiration,
-                    ParkingId = p.ParkingId
-                })
-                .FirstOrDefaultAsync();
 
-            if (parkingEntry == null)
+            try
             {
-                Console.WriteLine($"Parking entry with ID {id} not found.");
-                return NotFound($"Parking entry with ID {id} not found.");
+                var parkingEntry = await _parkingEntryService.GetParkingEntryAsync(id);
+                return Ok(parkingEntry);
             }
-
-            Console.WriteLine($"Fetched parking entry: {System.Text.Json.JsonSerializer.Serialize(parkingEntry)}");
-            return Ok(parkingEntry);
+            catch (KeyNotFoundException ex)
+            {
+                // Return a 404 Not Found with the exception message
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                // Handle other unexpected errors
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            }
         }
-
 
         [HttpDelete]
         [Authorize]
         public async Task<ActionResult<List<ParkingEntryDto>>> DeleteParkingEntry(int id)
         {
-            var dbParkingEntry = await _dataContext.ParkingEntries.FindAsync(id);
-
-            if (dbParkingEntry == null)
-                return NotFound("Parking entry not found.");
-
-            _dataContext.ParkingEntries.Remove(dbParkingEntry);
-            await _dataContext.SaveChangesAsync();
-
-            var parkingEntries = await _dataContext.ParkingEntries
-                .Select(p => new ParkingEntryDto
-                {
-                    Id = p.Id,
-                    RegistrationPlate = p.RegistrationPlate,
-                    TicketTakeover = p.TicketTakeover,
-                    TicketExpiration = p.TicketExpiration,
-                    ParkingId = p.ParkingId
-                })
-                .ToListAsync();
+            var parkingEntries = await _parkingEntryService.DeleteParkingLeave(id);
 
             return Ok(parkingEntries);
         }
 
         [HttpPut("{parkingEntryId}/leaves")]
         [Authorize]
-        public async Task<ActionResult<List<ParkingEntryDto>>> AddParkingLeave([FromRoute] int parkingEntryId, [FromBody] CreateParkingLeaveDto createParkingLeaveDto)
+        public async Task<ActionResult<List<ParkingEntryDto>>> AddOrUpdateParkingLeave([FromRoute] int parkingEntryId, [FromBody] CreateParkingLeaveDto createParkingLeaveDto)
         {
             try
             {
-                Console.WriteLine($"Received ParkingEntryId: {parkingEntryId}");
-                Console.WriteLine($"Received TicketExpiration: {createParkingLeaveDto.TicketExpiration}");
+                // Call service to add or update leave
+                var updatedEntries = await _parkingEntryService.UpdateParkingLeaveAsync(createParkingLeaveDto, parkingEntryId);
 
-                var entry = await _dataContext.ParkingEntries.FindAsync(parkingEntryId);
-
-                if (entry == null)
-                    return NotFound($"Entry with ParkingEntryId {parkingEntryId} not found.");
-
-                var parking = await _dataContext.Parkings.FindAsync(entry.ParkingId);
-
-                if (parking == null)
-                    return NotFound($"Parking with ParkingId {entry.ParkingId} not found.");
-
-                var price = parking.PricePerHour;
-                var ticketTakeover = entry.TicketTakeover;
-                var ticketExpiration = createParkingLeaveDto.TicketExpiration;
-
-                if (ticketTakeover == null || ticketExpiration == null)
-                {
-                    return BadRequest("TicketTakeover and TicketExpiration must have valid values.");
-                }
-
-                if (ticketExpiration <= ticketTakeover)
-                {
-                    return BadRequest("TicketExpiration must be later than TicketTakeover.");
-                }
-
-                // Update the expiration date
-                entry.TicketExpiration = ticketExpiration;
-
-                // Check if a payment already exists
-                var existingPayment = await _dataContext.ParkingPayments
-                    .FirstOrDefaultAsync(p => p.ParkingEntryId == parkingEntryId);
-
-                var duration = ticketExpiration.Value - ticketTakeover.Value;
-                var totalHours = (decimal)Math.Ceiling(duration.TotalHours);
-                var totalPrice = (int)(totalHours * price);
-
-                if (existingPayment != null)
-                {
-                    // Update existing payment
-                    existingPayment.Amount = totalPrice;
-                }
-                else
-                {
-                    // Create new payment
-                    var payment = new ParkingPayments
-                    {
-                        Amount = totalPrice,
-                        ParkingEntryId = parkingEntryId
-                    };
-
-                    _dataContext.ParkingPayments.Add(payment);
-                }
-
-                await _dataContext.SaveChangesAsync();
-
-                var parkingLeaves = await _dataContext.ParkingEntries
-                    .Select(p => new ParkingEntryDto
-                    {
-                        Id = p.Id,
-                        RegistrationPlate = p.RegistrationPlate,
-                        TicketTakeover = p.TicketTakeover,
-                        TicketExpiration = p.TicketExpiration,
-                        ParkingId = p.ParkingId
-                    })
-                    .ToListAsync();
-
-                return Ok(parkingLeaves);
+                // Return the updated entries to the client
+                return Ok(updatedEntries);
+            }
+            catch (ArgumentException ex)
+            {
+                // Handle validation errors
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
-                return StatusCode(500, "An error occurred while updating parking leave.");
+                return StatusCode(500, "An error occurred while adding or updating the parking leave.");
             }
         }
-
 
         [HttpGet("{ParkingId}/entries")]
         [Authorize]
         public async Task<ActionResult<List<ParkingEntryDto>>> GetParkingEntriesByParkingId([FromRoute] int ParkingId)
         {
-            var parkingEntries = await _dataContext.ParkingEntries
-                .Where(p => p.ParkingId == ParkingId)
-                .Select(p => new ParkingEntryDto
-                {
-                    Id = p.Id,
-                    RegistrationPlate = p.RegistrationPlate,
-                    TicketTakeover = p.TicketTakeover,
-                    TicketExpiration = p.TicketExpiration,
-                    ParkingId = p.ParkingId
-                })
-                .ToListAsync();
+            var parkingEntries = await _parkingEntryService.GetParkingEntriesByParkingId(ParkingId);
 
             return Ok(parkingEntries);
         }
@@ -231,17 +124,7 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<ParkingPayments>>> GetPaymentsByParkingId(int parkingId)
         {
-            var payments = await _dataContext.ParkingPayments
-                .Where(payment => _dataContext.ParkingEntries
-                    .Any(entry => entry.Id == payment.ParkingEntryId && entry.ParkingId == parkingId))
-                .Select(payment => new ParkingPayments
-                {
-                    Id = payment.Id,
-                    Amount = payment.Amount,
-                    ParkingEntryId = payment.ParkingEntryId,
-                    Currency = payment.Currency
-                })
-                .ToListAsync();
+            var payments = await _parkingEntryService.GetParkingPaymentsByParkingId(parkingId);
 
             if (!payments.Any())
             {
@@ -250,6 +133,5 @@ namespace ParkingSystem.Controllers
 
             return Ok(payments);
         }
-
     }
 }
