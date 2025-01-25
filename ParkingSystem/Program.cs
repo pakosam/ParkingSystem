@@ -74,6 +74,7 @@ builder.Services.AddScoped<IParkingEntryRepository, ParkingEntryRepository>();
 builder.Services.AddScoped<IParkingService, ParkingService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IParkingEntryService, ParkingEntryService>();
+builder.Services.AddScoped<ParkingSystem.Services.IAuthorizationService, ParkingSystem.Services.AuthorizationService>();
 
 
 builder.Logging.ClearProviders();

@@ -66,5 +66,17 @@ namespace ParkingSystem.Repositories
 
             await _dataContext.SaveChangesAsync();
         }
+
+        public async Task<bool> UsernameExistsAsync(string username)
+        {
+            return await _dataContext.Employees
+                .AnyAsync(e => e.Username == username);
+        }
+
+        public async Task<Employee> GetEmployeeByUsernameAsync(string username)
+        {
+            return await _dataContext.Employees
+                .FirstOrDefaultAsync(e => e.Username == username);
+        }
     }
 }
