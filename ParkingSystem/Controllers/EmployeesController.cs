@@ -28,22 +28,44 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> AddEmployee([FromBody] CreateEmployeeDto createEmployeeDto, [FromQuery] int parkingId)
         {
-            var parking = await _parkingService.GetParkingAsync(parkingId);
+            try
+            {
+                var parking = await _parkingService.GetParkingAsync(parkingId);
 
-            var employees = await _employeeService.CreateEmployeeAsync(createEmployeeDto, parkingId);
+                var employees = await _employeeService.CreateEmployeeAsync(createEmployeeDto, parkingId);
 
-            return Ok(employees);
+                return Ok(employees);
+            }
+            catch (ArgumentException ex) // Handle validation exceptions
+            {
+                return BadRequest(new { message = ex.Message }); // Only return the message
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred." });
+            }
         }
 
         [HttpPut]
         [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> UpdateEmployee(UpdateEmployeeDto updatedEmployee, int parkingId)
         {
-            var parking = await _parkingService.GetParkingAsync(parkingId);
+            try
+            {
+                var parking = await _parkingService.GetParkingAsync(parkingId);
 
-            var employees = await _employeeService.UpdateEmployeeAsync(updatedEmployee, parkingId);
+                var employees = await _employeeService.UpdateEmployeeAsync(updatedEmployee, parkingId);
 
-            return Ok(employees);
+                return Ok(employees);
+            }
+            catch (ArgumentException ex) // Handle validation exceptions
+            {
+                return BadRequest(new { message = ex.Message }); // Only return the message
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred." });
+            }
         }
 
         [HttpGet]

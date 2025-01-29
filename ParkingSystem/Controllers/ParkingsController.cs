@@ -24,18 +24,40 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> AddParking(CreateParkingDto createParkingDto)
         {
-            var parking = await _parkingService.CreateParkingAsync(createParkingDto);
+            try
+            {
+                var parking = await _parkingService.CreateParkingAsync(createParkingDto);
 
-            return Ok(parking);
+                return Ok(parking);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred." });
+            }
         }
 
         [HttpPut]
         [Authorize]
         public async Task<ActionResult<ParkingDto>> UpdateParking(Parking updatedParking)
         {
-            var parking = await _parkingService.UpdateParkingAsync(updatedParking);
+            try
+            {
+                var parking = await _parkingService.UpdateParkingAsync(updatedParking);
 
-            return Ok(parking);
+                return Ok(parking);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred." });
+            }
         }
 
         [HttpGet]
