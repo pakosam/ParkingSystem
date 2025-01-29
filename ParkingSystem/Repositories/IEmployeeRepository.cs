@@ -11,14 +11,10 @@ namespace ParkingSystem.Repositories
         Task<List<Employee>> GetAllEmployeesAsync();
         Task<Employee> GetEmployeeAsync(int id);
         Task DeleteEmployeeAsync(Employee employee);
-
-
-
-
-        Task<List<Employee>> GetEmployeesByParkingIdAsync(int parkingId);
-        Task UpdateEmployeesParkingIdAsync(List<Employee> employees, int parkingId);
-
+        Task<List<int>> GetEmployeesIdByParkingIdAsync(int parkingId);
+        Task UpdateEmployeesParkingIdAsync(List<int> employeeIds);
         Task<bool> UsernameExistsAsync(string username);
         Task<Employee> GetEmployeeByUsernameAsync(string username);
+        Task<List<Employee>> GetEmployeesByIdsAsync(List<int> employeeIds);
     }
 }

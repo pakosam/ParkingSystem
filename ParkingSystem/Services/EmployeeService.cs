@@ -196,5 +196,15 @@ namespace ParkingSystem.Services
 
             return employeeDtos;
         }
+
+        public async Task<List<int>> GetEmployeesIdByParkingIdAsync(int parkingId)
+        {
+            return await _employeeRepository.GetEmployeesIdByParkingIdAsync(parkingId);
+        }
+
+        public async Task UpdateEmployeesParkingIdAsync(List<int> employeeIds)
+        {
+            await _employeeRepository.UpdateEmployeesParkingIdAsync(employeeIds);
+        }
     }
 }

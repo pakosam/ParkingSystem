@@ -24,69 +24,56 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> AddParking(CreateParkingDto createParkingDto)
         {
-            var parkings = await _parkingService.CreateParkingAsync(createParkingDto);
+            var parking = await _parkingService.CreateParkingAsync(createParkingDto);
 
-            return Ok(parkings);
+            return Ok(parking);
         }
 
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult<List<ParkingDto>>> UpdateParking(Parking updatedParking)
+        public async Task<ActionResult<ParkingDto>> UpdateParking(Parking updatedParking)
         {
-            var parkings = await _parkingService.UpdateParkingAsync(updatedParking);
+            var parking = await _parkingService.UpdateParkingAsync(updatedParking);
 
-            return Ok(parkings);
+            return Ok(parking);
         }
 
         [HttpGet]
         [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> GetAllParkings()
         {
-            try
-            {
-                var parkings = await _parkingService.GetAllParkingsAsync();
-                return Ok(parkings);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                // Return a 404 Not Found with the exception message
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                // Handle other unexpected errors
-                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
-            }
+            var parkings = await _parkingService.GetAllParkingsAsync();
+            return Ok(parkings);
         }
 
         [HttpGet("{id}")]
         [Authorize]
         public async Task<ActionResult<ParkingDto>> GetParking(int id)
         {
-            try
-            {
-                var parking = await _parkingService.GetParkingAsync(id);
-                return Ok(parking);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                // Return a 404 Not Found with the exception message
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                // Handle other unexpected errors
-                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
-            }
+            var parking = await _parkingService.GetParkingAsync(id);
+            return Ok(parking);
         }
 
         [HttpDelete]
         [Authorize]
         public async Task<ActionResult<List<ParkingDto>>> DeleteParking(int id)
         {
-            var parkings = await _parkingService.DeleteParkingAsync(id);
+            var parking = await _parkingService.DeleteParkingAsync(id);
+            return Ok(parking);
 
-            return Ok(parkings);
+            //try
+            //{
+            //    var parking = await _parkingService.DeleteParkingAsync(id);
+            //    return Ok(parking);
+            //}
+            //catch (ArgumentException ex)
+            //{
+            //    return NotFound(new { Message = ex.Message, StackTrace = ex.StackTrace });
+            //}
+            //catch (Exception ex)
+            //{
+            //    return StatusCode(500, new { Message = ex.Message, StackTrace = ex.StackTrace });
+            //}
         }
     }
 }

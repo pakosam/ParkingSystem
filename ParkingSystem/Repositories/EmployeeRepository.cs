@@ -44,21 +44,29 @@ namespace ParkingSystem.Repositories
             _dataContext.Employees.Update(updatedEmployee);
             await _dataContext.SaveChangesAsync();
         }
-
-
-
-
-        public async Task<List<Employee>> GetEmployeesByParkingIdAsync (int parkingId)
+        public async Task<List<int>> GetEmployeesIdByParkingIdAsync(int parkingId)
         {
-            var employeesByParkingId = await _dataContext.Employees 
-                .Where(e => e.ParkingId == parkingId) 
+            var employeesIdByParkingId = await _dataContext.Employees 
+                .Where(e => e.ParkingId == parkingId)
+                .Select(e => e.Id)
                 .ToListAsync();
 
-            return employeesByParkingId;
+            return employeesIdByParkingId;
         }
 
-        public async Task UpdateEmployeesParkingIdAsync(List<Employee> employees, int parkingId)
+        public async Task<List<Employee>> GetEmployeesByIdsAsync(List<int> employeeIds)
         {
+            return await _dataContext.Employees
+                .Where(e => employeeIds.Contains(e.Id))
+                .ToListAsync();
+        }
+
+        public async Task UpdateEmployeesParkingIdAsync(List<int> employeeIds)
+        {
+            var employees = await _dataContext.Employees
+                .Where(e => employeeIds.Contains(e.Id))
+                .ToListAsync();
+
             foreach (var employee in employees) 
             {
                 employee.ParkingId = null; 

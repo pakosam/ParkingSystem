@@ -10,5 +10,7 @@ namespace ParkingSystem.Services
         Task<List<EmployeeDto>> GetAllEmployeesAsync();
         Task<EmployeeDto> GetEmployeeAsync(int id);
         Task<List<EmployeeDto>> DeleteEmployeeAsync(int id);
+        Task<List<int>> GetEmployeesIdByParkingIdAsync(int id);
+        Task UpdateEmployeesParkingIdAsync(List<int> employeeIds);
     }
 }
