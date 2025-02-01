@@ -107,5 +107,12 @@ namespace ParkingSystem.Repositories
 
             await _dataContext.SaveChangesAsync();
         }
+
+        public async Task<int> GetActiveEntriesCountByParkingIdAsync(int parkingId)
+        {
+            return await _dataContext.ParkingEntries
+                .Where(e => e.ParkingId == parkingId && e.TicketExpiration == null)
+                .CountAsync();
+        }
     }
 }

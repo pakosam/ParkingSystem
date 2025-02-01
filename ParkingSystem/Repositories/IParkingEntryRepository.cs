@@ -15,5 +15,6 @@ namespace ParkingSystem.Repositories
         Task<List<ParkingEntry>> GetParkingEntriesByParkingIdAsync(int ParkingId);
         Task<List<ParkingPayments>> GetParkingPaymentsByParkingIdAsync(int parkingId);
         Task AddOrUpdatePaymentAsync(ParkingPayments payment);
+        Task<int> GetActiveEntriesCountByParkingIdAsync(int parkingId);
     }
 }

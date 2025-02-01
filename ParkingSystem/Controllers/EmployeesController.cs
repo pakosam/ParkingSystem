@@ -42,7 +42,7 @@ namespace ParkingSystem.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An unexpected error occurred." });
+                return StatusCode(500, new {error = ex.Message });
             }
         }
 
@@ -64,7 +64,7 @@ namespace ParkingSystem.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "An unexpected error occurred." });
+                return StatusCode(500, new {error = ex.Message });
             }
         }
 

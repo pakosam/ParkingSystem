@@ -17,9 +17,12 @@ namespace ParkingSystem.Services
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
 
+            if (employeeDto == null)
+                throw new ArgumentException("Employee data is required.");
+
             if (employeeDto.BirthDate == DateOnly.MinValue)
             {
-                throw new NotImplementedException("Birth date is required");
+                throw new ArgumentException("Birth date is required");
             }
 
             var age = today.Year - employeeDto.BirthDate.Year;
@@ -30,21 +33,22 @@ namespace ParkingSystem.Services
 
             if (age > 70)
             {
-                throw new NotImplementedException("Employee cannot be older than 70 years.");
+                throw new ArgumentException("Employee cannot be older than 70 years.");
             }
 
             if (age < 18)
             {
-                throw new NotImplementedException("Employee cannot be younger than 18 years.");
+                throw new ArgumentException("Employee cannot be younger than 18 years.");
             }
 
-            if (employeeDto.Name.Length < 3 ||
-                employeeDto.Surname.Length < 3 ||
-                employeeDto.Username.Length < 4 ||
-                employeeDto.Password.Length < 10)
-            {
-                throw new NotImplementedException("Data is not filled properly");
-            }
+            if (string.IsNullOrWhiteSpace(employeeDto.Name) || employeeDto.Name.Length < 3)
+                throw new ArgumentException("Name must be at least 3 characters.");
+            if (string.IsNullOrWhiteSpace(employeeDto.Surname) || employeeDto.Surname.Length < 3)
+                throw new ArgumentException("Surname must be at least 3 characters.");
+            if (string.IsNullOrWhiteSpace(employeeDto.Username) || employeeDto.Username.Length < 4)
+                throw new ArgumentException("Username must be at least 4 characters.");
+            if (string.IsNullOrWhiteSpace(employeeDto.Password) || employeeDto.Password.Length < 10)
+                throw new ArgumentException("Password must be at least 10 characters.");
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(employeeDto.Password);
 
@@ -150,7 +154,7 @@ namespace ParkingSystem.Services
 
             if (updatedEmployee.BirthDate == DateOnly.MinValue)
             {
-                throw new NotImplementedException("Birth date is required");
+                throw new ArgumentException("Birth date is required");
             }
 
             var age = today.Year - updatedEmployee.BirthDate.Year;
@@ -161,19 +165,18 @@ namespace ParkingSystem.Services
 
             if (age > 70)
             {
-                throw new NotImplementedException("Employee cannot be older than 70 years.");
+                throw new ArgumentException("Employee cannot be older than 70 years.");
             }
 
             if (age < 18)
             {
-                throw new NotImplementedException("Employee cannot be younger than 18 years.");
+                throw new ArgumentException("Employee cannot be younger than 18 years.");
             }
 
-            if (updatedEmployee.Name.Length < 3 ||
-                updatedEmployee.Surname.Length <= 3)
-            {
-                throw new NotImplementedException("Data is not filled properly");
-            }
+            if (string.IsNullOrWhiteSpace(updatedEmployee.Name) || updatedEmployee.Name.Length < 3)
+                throw new ArgumentException("Name must be at least 3 characters.");
+            if (string.IsNullOrWhiteSpace(updatedEmployee.Surname) || updatedEmployee.Surname.Length < 3)
+                throw new ArgumentException("Surname must be at least 3 characters.");
 
             dbEmployee.Name = updatedEmployee.Name;
             dbEmployee.Surname = updatedEmployee.Surname;
