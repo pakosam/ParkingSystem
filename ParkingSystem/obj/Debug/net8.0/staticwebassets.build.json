@@ -1,11 +1,12 @@
 {
   "Version": 1,
-  "Hash": "57G7ye9IfUn1FxZnuCopovlg/xqFwNJnlZFGy0+LUWY=",
+  "Hash": "uj+HNN/IlnsQtCvBjmTtvcgxM9OFEvLxSklWTnpF6WE=",
   "Source": "ParkingSystem",
   "BasePath": "_content/ParkingSystem",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }
