@@ -25,7 +25,6 @@ namespace ParkingSystem.Services
             if (parking == null)
                 throw new ArgumentException($"Parking with ID {parkingId} does not exist.");
 
-            // Count active entries (entries without TicketExpiration)
             var activeEntriesCount = await _parkingEntryRepository.GetActiveEntriesCountByParkingIdAsync(parkingId);
             var remainingPlaces = parking.NumberOfPlaces - activeEntriesCount;
 

@@ -46,12 +46,10 @@ namespace ParkingSystem.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                // Return a 404 Not Found with the exception message
                 return NotFound(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                // Handle other unexpected errors
                 return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
@@ -68,12 +66,10 @@ namespace ParkingSystem.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                // Return a 404 Not Found with the exception message
                 return NotFound(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                // Handle other unexpected errors
                 return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
@@ -93,15 +89,12 @@ namespace ParkingSystem.Controllers
         {
             try
             {
-                // Call service to add or update leave
                 var updatedEntries = await _parkingEntryService.UpdateParkingLeaveAsync(createParkingLeaveDto, parkingEntryId);
 
-                // Return the updated entries to the client
                 return Ok(updatedEntries);
             }
             catch (ArgumentException ex)
             {
-                // Handle validation errors
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)

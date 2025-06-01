@@ -72,13 +72,8 @@ namespace ParkingSystem.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error occurred: {ex.Message}");
-                throw; // Rethrow exception so it can be handled higher up (e.g., in the controller)
+                throw; 
             }
-
-
-            //var employeesIdByParkingId = await _employeeService.GetEmployeesIdByParkingIdAsync(id);
-
-            //await _employeeService.UpdateEmployeesParkingIdAsync(employeesIdByParkingId, id);
         }
 
         public async Task<List<ParkingDto>> GetAllParkingsAsync()

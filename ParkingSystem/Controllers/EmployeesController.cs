@@ -36,9 +36,9 @@ namespace ParkingSystem.Controllers
 
                 return Ok(employees);
             }
-            catch (ArgumentException ex) // Handle validation exceptions
+            catch (ArgumentException ex) 
             {
-                return BadRequest(new { message = ex.Message }); // Only return the message
+                return BadRequest(new { message = ex.Message }); 
             }
             catch (Exception ex)
             {
@@ -58,9 +58,9 @@ namespace ParkingSystem.Controllers
 
                 return Ok(employees);
             }
-            catch (ArgumentException ex) // Handle validation exceptions
+            catch (ArgumentException ex) 
             {
-                return BadRequest(new { message = ex.Message }); // Only return the message
+                return BadRequest(new { message = ex.Message }); 
             }
             catch (Exception ex)
             {
@@ -79,12 +79,10 @@ namespace ParkingSystem.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                // Return a 404 Not Found with the exception message
                 return NotFound(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                // Handle other unexpected errors
                 return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
@@ -100,12 +98,10 @@ namespace ParkingSystem.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                // Return a 404 Not Found with the exception message
                 return NotFound(new { message = ex.Message });
             }
             catch (Exception ex)
             {
-                // Handle other unexpected errors
                 return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
@@ -114,8 +110,6 @@ namespace ParkingSystem.Controllers
         [Authorize]
         public async Task<ActionResult<List<EmployeeDto>>> DeleteEmployee(int id)
         {
-            //var dbEmployee = await _employeeService.GetEmployeeAsync(id);
-
             var employees = await _employeeService.DeleteEmployeeAsync(id);
 
             return Ok(employees);

@@ -82,20 +82,6 @@ namespace ParkingSystem.Controllers
         {
             var parking = await _parkingService.DeleteParkingAsync(id);
             return Ok(parking);
-
-            //try
-            //{
-            //    var parking = await _parkingService.DeleteParkingAsync(id);
-            //    return Ok(parking);
-            //}
-            //catch (ArgumentException ex)
-            //{
-            //    return NotFound(new { Message = ex.Message, StackTrace = ex.StackTrace });
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(500, new { Message = ex.Message, StackTrace = ex.StackTrace });
-            //}
         }
     }
 }

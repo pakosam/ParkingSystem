@@ -21,7 +21,6 @@ namespace ParkingSystem.Services
         }
         public async Task RegisterAsync(CreateEmployeeDto registerDto)
         {
-            // Check if the username already exists
             var existingUser = await _employeeRepository.UsernameExistsAsync(registerDto.Username);
             if (existingUser)
             {
@@ -60,10 +59,8 @@ namespace ParkingSystem.Services
                 throw new NotImplementedException("Data is not filled properly");
             }
 
-            // Hash the password
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
 
-            // Create a new employee entity
             var employee = new Employee
             {
                 Username = registerDto.Username,
@@ -73,7 +70,6 @@ namespace ParkingSystem.Services
                 BirthDate = registerDto.BirthDate
             };
 
-            // Add the new employee to the database
             await _employeeRepository.CreateEmployeeAsync(employee);
         }
 
@@ -85,7 +81,6 @@ namespace ParkingSystem.Services
                 throw new UnauthorizedAccessException("Invalid username or password.");
             }
 
-            // Generate JWT token
             return GenerateJwtToken(employee.Username);
         }
 
